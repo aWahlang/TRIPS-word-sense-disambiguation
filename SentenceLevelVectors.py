@@ -7,10 +7,12 @@ from os import listdir
 from vectors import parseFeqDep1, load_obj
 from Helpers.OutfileParsingHelpers import genDeplist
 
-#method to create a binary vectors for each sentece of a nounOut file
+#function to create a binary vectors for each sentece of a nounOut file
+#As of now the function is  designed to work with outfiles, make sure the outfile is named [noun]Out.csv
 #root -> path to the directory that contains the outfiles
 #senteence_count -> number of sentence to turn into vectors enter None for all sentence in the outfile
 #feqDir -> path to the directory that contains the frequent itemsets for the noun 
+#noun -> noun in lower case
 
 def createSentenceLevelVec(root, saveDir, noun, sentence_count, feqDir=None, random_sample = False):
     feqFiles = listdir(feqDir)
@@ -19,7 +21,7 @@ def createSentenceLevelVec(root, saveDir, noun, sentence_count, feqDir=None, ran
         feq1 = list(load_obj('vector_map_detSplit').keys())
     else:
         file = [x for x in feqFiles if re.search('^' + noun+'_FeqDep', x)]
-        print(file[0] + ' used...')
+        print(file[0] + ' used as vector map...')
         feq1 = parseFeqDep1(feqDir + file[0])
 
     #vector columns names
@@ -91,19 +93,19 @@ def createSentenceLevelVec(root, saveDir, noun, sentence_count, feqDir=None, ran
         if(c == sentence_count):
             break
 
+    # drop empty rows 
     vectors = vectors.drop(vectors[vectors.Sentence == '0'].index)
     print("Rows skipped:" + str(rCount))
     fName = saveDir + noun + 'SentenceVectors.csv'
     vectors.to_csv(fName, index = False)
     print(fName+' saved')
-    return
 
 
 #--------------------------------------------------
 if __name__ == "__main__":
-    r = '/Users/aeshaanwahlang/Documents/QuantitativeSemanticsData/outfile_3/'
-    s = '/Users/aeshaanwahlang/Documents/QuantitativeSemantics/SentenceLevelVectors/'
-    f = '/Users/aeshaanwahlang/Documents/QuantitativeSemanticsData/FrequentDependancies/v1.5/Unique/Support_10/'
+    root = '/Users/aeshaanwahlang/Documents/QuantitativeSemanticsData/outfile_3/'
+    save = '/Users/aeshaanwahlang/Documents/CourseWork/NLU/TRIPS/project/SentenceVectors'
+    feq = '/Users/aeshaanwahlang/Documents/QuantitativeSemanticsData/FrequentDependancies/v1.5/Unique/Support_10/'
     nouns = ['friday', 'wednesday', 'autumn', 'ten', 'april', 'geologist']
     # for n in nouns:
     #     createSentenceLevelVec(r,s,n,100,f)
